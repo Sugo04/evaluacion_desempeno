@@ -1,2 +1,57 @@
 <odoo>
+    <!-- Vista de formulario para crear/editar evaluaciones de desempeño -->
+    <record id="view_form_evaluacion_desempeno" model="ir.ui.view">
+        <field name="name">evaluacion.desempeno.form</field>
+        <field name="model">evaluacion.desempeno</field>
+        <field name="arch" type="xml">
+            <form string="Evaluación de Desempeño">
+                <sheet>
+                    <group>
+                        <field name="titulo"/>
+                        <field name="empleado_id" domain="[('id', '=', user.employee_id.id)]"/>
+                        <field name="fecha_evaluacion"/>
+                        <field name="comentarios"/>
+                        <field name="puntuacion"/>
+                        <field name="estado"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista kanban para mostrar las evaluaciones -->
+    <record id="view_kanban_evaluacion_desempeno" model="ir.ui.view">
+        <field name="name">evaluacion.desempeno.kanban</field>
+        <field name="model">evaluacion.desempeno</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="titulo"/>
+                <field name="empleado_id"/>
+                <field name="estado"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click o_kanban_status_#{record.estado}">
+                            <div class="oe_kanban_details">
+                                <strong><field name="titulo"/></strong>
+                                <div><field name="empleado_id"/></div>
+                                <div><field name="estado"/></div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Acción para mostrar las evaluaciones en el menú -->
+    <record id="action_evaluacion_desempeno" model="ir.actions.act_window">
+        <field name="name">Evaluaciones de Desempeño</field>
+        <field name="res_model">evaluacion.desempeno</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- Menú para el módulo -->
+    <menuitem id="menu_evaluacion_desempeno" name="Evaluación de Desempeño"
+              parent="hr.menu_hr_root" action="action_evaluacion_desempeno" />
 </odoo>
