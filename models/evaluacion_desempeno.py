@@ -17,13 +17,11 @@ class EvaluacionDesempeno(models.Model):
         ('finalizado', 'Finalizado'),
     ], string="Estado", default='pendiente')
 
-    # Restricciones de acceso
+
     def _check_manager_role(self):
-        # Aquí se verifica si el usuario tiene el rol de gerente de RRHH
         if not self.env.user.has_group('hr.group_hr_manager'):
             raise PermissionError("No tienes permisos para realizar esta acción.")
-
-    # Métodos para controlar permisos
+        
     @api.model
     def create(self, vals):
         self._check_manager_role()
@@ -33,6 +31,5 @@ class EvaluacionDesempeno(models.Model):
         self._check_manager_role()
         return super(EvaluacionDesempeno, self).write(vals)
 
-    # Método para obtener evaluaciones del empleado
     def get_evaluaciones_empleado(self):
         return self.search([('empleado_id', '=', self.env.user.employee_id.id)])
