@@ -1,40 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vista de formulario para crear/editar evaluaciones de desempeño -->
-    <record id="view_form_evaluacion_desempeno" model="ir.ui.view">
+    <!-- Form View -->
+    <record id="view_evaluacion_desempeno_form" model="ir.ui.view">
         <field name="name">evaluacion.desempeno.form</field>
         <field name="model">evaluacion.desempeno</field>
         <field name="arch" type="xml">
-            <form string="Evaluación de Desempeño">
+            <form>
+                <header>
+                    <button name="action_en_proceso" string="En Proceso" type="object" 
+                            states="pendiente" class="oe_highlight" groups="hr.group_hr_manager"/>
+                    <button name="action_finalizar" string="Finalizar" type="object" 
+                            states="en_proceso" class="oe_highlight" groups="hr.group_hr_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pendiente,en_proceso,finalizado"/>
+                </header>
                 <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Título de Evaluación"/>
+                        </h1>
+                    </div>
                     <group>
-                        <field name="titulo"/>
-                        <field name="empleado_id" domain="[('id', '=', user.employee_id.id)]"/>
-                        <field name="fecha_evaluacion"/>
-                        <field name="comentarios"/>
-                        <field name="puntuacion"/>
-                        <field name="estado"/>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="fecha_evaluacion"/>
+                        </group>
+                        <group>
+                            <field name="puntuacion"/>
+                            <field name="color" widget="color_picker"/>
+                        </group>
                     </group>
+                    <notebook>
+                        <page string="Comentarios">
+                            <field name="comentarios"/>
+                        </page>
+                    </notebook>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
 
-    <!-- Vista kanban para mostrar las evaluaciones -->
-    <record id="view_kanban_evaluacion_desempeno" model="ir.ui.view">
+    <!-- Tree View -->
+    <record id="view_evaluacion_desempeno_tree" model="ir.ui.view">
+        <field name="name">evaluacion.desempeno.tree</field>
+        <field name="model">evaluacion.desempeno</field>
+        <field name="arch" type="xml">
+            <tree decoration-info="state == 'pendiente'" 
+                  decoration-warning="state == 'en_proceso'" 
+                  decoration-success="state == 'finalizado'">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="fecha_evaluacion"/>
+                <field name="puntuacion"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="view_evaluacion_desempeno_kanban" model="ir.ui.view">
         <field name="name">evaluacion.desempeno.kanban</field>
         <field name="model">evaluacion.desempeno</field>
         <field name="arch" type="xml">
-            <kanban>
-                <field name="titulo"/>
-                <field name="empleado_id"/>
-                <field name="estado"/>
+            <kanban default_group_by="state" class="o_kanban_small_column" 
+                    quick_create="false" records_draggable="0">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="fecha_evaluacion"/>
+                <field name="puntuacion"/>
+                <field name="state"/>
+                <field name="color"/>
                 <templates>
                     <t t-name="kanban-box">
-                        <div t-attf-class="oe_kanban_card oe_kanban_global_click o_kanban_status_#{record.estado}">
-                            <div class="oe_kanban_details">
-                                <strong><field name="titulo"/></strong>
-                                <div><field name="empleado_id"/></div>
-                                <div><field name="estado"/></div>
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                            <div t-attf-class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="employee_id"/>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <field name="puntuacion" widget="label_selection"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_dropdown_kanban dropdown" groups="hr.group_hr_manager">
+                                <a role="button" class="dropdown-toggle o-no-caret btn" data-toggle="dropdown" href="#" aria-label="Opciones" title="Opciones">
+                                    <span class="fa fa-ellipsis-v"/>
+                                </a>
+                                <div class="dropdown-menu" role="menu">
+                                    <a role="menuitem" class="dropdown-item" name="action_en_proceso" type="object" states="pendiente">Marcar En Proceso</a>
+                                    <a role="menuitem" class="dropdown-item" name="action_finalizar" type="object" states="en_proceso">Finalizar</a>
+                                </div>
                             </div>
                         </div>
                     </t>
@@ -43,15 +110,45 @@
         </field>
     </record>
 
-    <!-- Acción para mostrar las evaluaciones en el menú -->
+    <!-- Search View -->
+    <record id="view_evaluacion_desempeno_search" model="ir.ui.view">
+        <field name="name">evaluacion.desempeno.search</field>
+        <field name="model">evaluacion.desempeno</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <filter string="Pendientes" name="pendiente" domain="[('state','=','pendiente')]"/>
+                <filter string="En Proceso" name="en_proceso" domain="[('state','=','en_proceso')]"/>
+                <filter string="Finalizados" name="finalizado" domain="[('state','=','finalizado')]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_by_state" string="Estado" context="{'group_by':'state'}"/>
+                    <filter name="group_by_employee" string="Empleado" context="{'group_by':'employee_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
     <record id="action_evaluacion_desempeno" model="ir.actions.act_window">
         <field name="name">Evaluaciones de Desempeño</field>
         <field name="res_model">evaluacion.desempeno</field>
         <field name="view_mode">kanban,tree,form</field>
-        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea tu primera evaluación de desempeño
+            </p>
+        </field>
     </record>
 
-    <!-- Menú para el módulo -->
-    <menuitem id="menu_evaluacion_desempeno" name="Evaluación de Desempeño"
-              parent="hr.menu_hr_root" action="action_evaluacion_desempeno" />
+    <!-- Menu Items -->
+    <menuitem id="menu_evaluacion_desempeno_root" 
+              name="Evaluación de Desempeño" 
+              sequence="10"/>
+
+    <menuitem id="menu_evaluacion_desempeno" 
+              name="Evaluaciones" 
+              parent="menu_evaluacion_desempeno_root" 
+              action="action_evaluacion_desempeno" 
+              sequence="1"/>
 </odoo>

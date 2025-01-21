@@ -1,35 +1,42 @@
 from odoo import models, fields, api
 
 class EvaluacionDesempeno(models.Model):
-    _name="evaluacion.desempeno"
-    _description="Evaluacion del Desempeño Empleado"
+    _name = "evaluacion.desempeno"
+    _description = "Evaluacion del Desempeño Empleado"
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    titulo = fields.Char(string="Título de la Evaluación", required=True)
-    empleado_id = fields.Many2one('hr.employee', string="Empleado", required=True)
-    fecha_evaluacion = fields.Date(string="Fecha de Evaluación", default=fields.Date.today)
-    comentarios = fields.Text(string="Comentarios del Evaluador")
+    name = fields.Char(string="Título de Evaluación", required=True, tracking=True)
+    employee_id = fields.Many2one('res.users', string="Empleado", required=True, tracking=True)
+    fecha_evaluacion = fields.Date(string="Fecha de Evaluación", required=True, tracking=True)
+    comentarios = fields.Text(string="Comentarios del Evaluador", tracking=True)
     puntuacion = fields.Selection([
-        (str(i), str(i)) for i in range(1, 11)
-    ], string="Puntuación", required=True)
-    estado = fields.Selection([
+        ('1', '1'),
+        ('2', '2'),
+        ('3', '3'),
+        ('4', '4'),
+        ('5', '5'),
+        ('6', '6'),
+        ('7', '7'),
+        ('8', '8'),
+        ('9', '9'),
+        ('10', '10')
+    ], string="Puntuación", required=True, tracking=True)
+    
+    state = fields.Selection([
         ('pendiente', 'Pendiente'),
         ('en_proceso', 'En Proceso'),
-        ('finalizado', 'Finalizado'),
-    ], string="Estado", default='pendiente')
+        ('finalizado', 'Finalizado')
+    ], string="Estado", default='pendiente', tracking=True)
 
-
-    def _check_manager_role(self):
-        if not self.env.user.has_group('hr.group_hr_manager'):
-            raise PermissionError("No tienes permisos para realizar esta acción.")
-        
+    color = fields.Integer(string='Color Index')
+    
     @api.model
     def create(self, vals):
-        self._check_manager_role()
-        return super(EvaluacionDesempeno, self).create(vals)
+        record = super(EvaluacionDesempeno, self).create(vals)
+        return record
 
-    def write(self, vals):
-        self._check_manager_role()
-        return super(EvaluacionDesempeno, self).write(vals)
+    def action_en_proceso(self):
+        self.write({'state': 'en_proceso'})
 
-    def get_evaluaciones_empleado(self):
-        return self.search([('empleado_id', '=', self.env.user.employee_id.id)])
+    def action_finalizar(self):
+        self.write({'state': 'finalizado'})
