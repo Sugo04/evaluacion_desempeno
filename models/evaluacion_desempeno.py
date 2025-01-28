@@ -2,7 +2,7 @@ from odoo import models, fields, api
 
 class EvaluacionDesempeno(models.Model):
     _name = "evaluacion.desempeno"
-    _description = "Evaluacion del Desempeño Empleado"
+    _description = "Evaluacion del Desempeño Empleado."
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string="Título de Evaluación", required=True, tracking=True)
