@@ -16,6 +16,6 @@
     "installable": True,
     "auto_install": False,
     "description": """
-                    Módulo de Odoo para la gestión del desempeño con el que se califica a nuestros empleados
+                    Módulo de Odoo para la gestión del desempeño con el que se califica a nuestros empleados 
                     """,
 }
