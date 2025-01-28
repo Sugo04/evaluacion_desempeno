@@ -127,7 +127,7 @@
     </record>
 
     <record id="action_evaluacion_desempeno" model="ir.actions.act_window">
-        <field name="name">Evaluaciones de Desempeño</field>
+        <field name="name">Evaluaciones de Desempeño.</field>
         <field name="res_model">evaluacion.desempeno</field>
         <field name="view_mode">kanban,tree,form</field>
         <field name="help" type="html">
